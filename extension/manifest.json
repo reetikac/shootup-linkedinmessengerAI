@@ -1,0 +1,34 @@
+{
+  "manifest_version": 3,
+  "name": "shootUp",
+  "version": "1.0.0",
+  "description": "Generate personalized LinkedIn outreach messages using Claude AI.",
+
+  "permissions": ["activeTab", "tabs", "storage", "sidePanel", "scripting"],
+
+  "host_permissions": [
+    "http://localhost:*/*",
+    "https://*.vercel.app/*",
+    "https://www.linkedin.com/*"
+  ],
+
+  "background": {
+    "service_worker": "background.js"
+  },
+
+  "content_scripts": [
+    {
+      "matches": ["https://www.linkedin.com/in/*"],
+      "js": ["content.js"],
+      "run_at": "document_idle"
+    }
+  ],
+
+  "side_panel": {
+    "default_path": "sidepanel.html"
+  },
+
+  "action": {
+    "default_title": "shootUp"
+  }
+}

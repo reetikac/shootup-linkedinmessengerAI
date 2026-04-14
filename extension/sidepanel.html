@@ -1,0 +1,817 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>shootUp</title>
+  <style>
+    /* ── Reset & base ─────────────────────────────────────────────────────── */
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --blue:       #0a66c2;
+      --blue-dark:  #004182;
+      --blue-light: #eff6ff;
+      --blue-pale:  #bfdbfe;
+      --text:       #111827;
+      --muted:      #6b7280;
+      --border:     #e5e7eb;
+      --bg:         #f3f4f6;
+      --white:      #ffffff;
+      --danger:     #dc2626;
+      --danger-bg:  #fef2f2;
+      --success:    #16a34a;
+      --success-bg: #f0fdf4;
+      --radius:     9px;
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      font-size: 13px;
+      background: var(--bg);
+      color: var(--text);
+      height: 100vh;
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+    }
+
+    /* ── Screens ──────────────────────────────────────────────────────────── */
+    .screen {
+      display: flex;
+      flex-direction: column;
+      height: 100vh;
+      overflow: hidden;
+    }
+
+    .screen-body {
+      flex: 1;
+      overflow-y: auto;
+      padding: 10px 10px 16px;
+    }
+
+    /* ── Sticky headers ───────────────────────────────────────────────────── */
+    .screen-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 11px 14px;
+      flex-shrink: 0;
+    }
+
+    .screen-header.blue {
+      background: var(--blue);
+      color: var(--white);
+    }
+
+    .screen-header.white {
+      background: var(--white);
+      border-bottom: 1px solid var(--border);
+    }
+
+    .header-title {
+      display: flex;
+      align-items: center;
+      gap: 9px;
+      font-size: 15px;
+      font-weight: 700;
+      letter-spacing: -0.01em;
+    }
+
+    /* ── Cards ────────────────────────────────────────────────────────────── */
+    .card {
+      background: var(--white);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 13px 14px;
+      margin-bottom: 10px;
+    }
+    .card:last-child { margin-bottom: 0; }
+
+    .card-title {
+      font-size: 10px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.07em;
+      color: var(--muted);
+      margin-bottom: 11px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    /* ── Form elements ────────────────────────────────────────────────────── */
+    .field { margin-bottom: 10px; }
+    .field:last-child { margin-bottom: 0; }
+
+    label.field-label {
+      display: block;
+      font-size: 11px;
+      font-weight: 600;
+      color: #374151;
+      margin-bottom: 4px;
+    }
+
+    input[type="text"],
+    textarea,
+    select {
+      width: 100%;
+      padding: 7px 10px;
+      border: 1px solid var(--border);
+      border-radius: 7px;
+      font-size: 12px;
+      font-family: inherit;
+      color: var(--text);
+      background: var(--white);
+      outline: none;
+      transition: border-color 0.15s, box-shadow 0.15s;
+    }
+
+    input[type="text"]:focus,
+    textarea:focus,
+    select:focus {
+      border-color: var(--blue);
+      box-shadow: 0 0 0 3px rgba(10, 102, 194, 0.12);
+    }
+
+    textarea {
+      resize: vertical;
+      min-height: 58px;
+      line-height: 1.45;
+    }
+
+    .row-2 {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 8px;
+    }
+
+    /* ── Radio pills ──────────────────────────────────────────────────────── */
+    .radio-group {
+      display: flex;
+      gap: 8px;
+    }
+
+    .radio-opt {
+      flex: 1;
+      display: flex;
+      align-items: center;
+      gap: 7px;
+      padding: 7px 10px;
+      border: 1px solid var(--border);
+      border-radius: 7px;
+      cursor: pointer;
+      transition: border-color 0.15s, background 0.15s;
+      font-size: 12px;
+      user-select: none;
+    }
+
+    .radio-opt:has(input:checked) {
+      border-color: var(--blue);
+      background: var(--blue-light);
+      color: var(--blue);
+      font-weight: 600;
+    }
+
+    .radio-opt input[type="radio"] {
+      accent-color: var(--blue);
+      width: 14px;
+      height: 14px;
+      flex-shrink: 0;
+    }
+
+    .radio-opt em {
+      font-style: normal;
+      font-size: 10px;
+      opacity: 0.7;
+    }
+
+    /* ── Buttons ──────────────────────────────────────────────────────────── */
+    .btn-primary {
+      width: 100%;
+      padding: 11px;
+      background: var(--blue);
+      color: var(--white);
+      border: none;
+      border-radius: var(--radius);
+      font-size: 13px;
+      font-weight: 700;
+      font-family: inherit;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 7px;
+      transition: background 0.15s;
+    }
+    .btn-primary:hover:not(:disabled) { background: var(--blue-dark); }
+    .btn-primary:disabled { background: var(--blue-pale); cursor: not-allowed; }
+
+    .btn-secondary {
+      padding: 7px 12px;
+      background: var(--white);
+      color: var(--blue);
+      border: 1px solid var(--blue-pale);
+      border-radius: 7px;
+      font-size: 12px;
+      font-weight: 600;
+      font-family: inherit;
+      cursor: pointer;
+      transition: background 0.1s;
+    }
+    .btn-secondary:hover { background: var(--blue-light); }
+
+    .btn-link {
+      background: none;
+      border: none;
+      color: var(--blue);
+      font-size: 12px;
+      font-family: inherit;
+      cursor: pointer;
+      padding: 0;
+      text-decoration: underline;
+      text-underline-offset: 2px;
+    }
+    .btn-link:hover { color: var(--blue-dark); }
+
+    .btn-link.white {
+      color: rgba(255,255,255,0.85);
+      text-decoration: none;
+      font-size: 12px;
+      font-weight: 500;
+    }
+    .btn-link.white:hover { color: var(--white); }
+
+    .btn-icon {
+      background: none;
+      border: none;
+      cursor: pointer;
+      font-size: 11px;
+      font-family: inherit;
+      padding: 2px 6px;
+      border-radius: 5px;
+      color: var(--muted);
+      transition: background 0.1s, color 0.1s;
+    }
+    .btn-icon:hover { background: var(--bg); color: var(--text); }
+    .btn-icon.danger:hover { background: var(--danger-bg); color: var(--danger); }
+
+    .copy-btn {
+      font-size: 10px;
+      color: var(--blue);
+      background: none;
+      border: 1px solid var(--blue-pale);
+      border-radius: 5px;
+      padding: 2px 8px;
+      cursor: pointer;
+      font-family: inherit;
+      transition: background 0.1s;
+    }
+    .copy-btn:hover { background: var(--blue-light); }
+    .copy-btn.copied {
+      color: var(--success);
+      border-color: #bbf7d0;
+      background: var(--success-bg);
+    }
+
+    /* ── Email confidence chips ───────────────────────────────────────────── */
+    .conf-chip {
+      font-size: 9px; font-weight: 700; text-transform: uppercase;
+      letter-spacing: 0.05em; padding: 1px 6px; border-radius: 4px; flex-shrink: 0;
+    }
+    .conf-chip.high   { background: #dcfce7; color: #15803d; }
+    .conf-chip.medium { background: #fef9c3; color: #854d0e; }
+    .conf-chip.low    { background: #f1f5f9; color: #64748b; }
+    .email-guess-row  { display:flex; align-items:center; gap:6px; margin-bottom:6px; }
+    .email-guess-row:last-child { margin-bottom:0; }
+    .email-addr {
+      font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+      font-size: 11px; color: var(--text); flex:1;
+      overflow:hidden; text-overflow:ellipsis; white-space:nowrap; min-width:0;
+    }
+
+    /* ── Saved profiles list ─────────────────────────────────────────────── */
+    .profile-chip {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 8px 10px;
+      border: 1px solid var(--border);
+      border-radius: 7px;
+      margin-bottom: 6px;
+      background: var(--white);
+      transition: border-color 0.15s;
+    }
+    .profile-chip:last-child { margin-bottom: 0; }
+    .profile-chip.active { border-color: var(--blue); background: var(--blue-light); }
+
+    .profile-chip-name {
+      font-size: 12px;
+      font-weight: 600;
+      color: var(--text);
+      flex: 1;
+    }
+    .profile-chip.active .profile-chip-name { color: var(--blue); }
+
+    .profile-chip-actions { display: flex; gap: 4px; }
+
+    /* ── Recipient rows ───────────────────────────────────────────────────── */
+    .profile-row {
+      display: flex;
+      gap: 8px;
+      margin-bottom: 5px;
+      align-items: flex-start;
+    }
+    .profile-row:last-child { margin-bottom: 0; }
+
+    .profile-lbl {
+      font-size: 10px;
+      font-weight: 600;
+      color: #9ca3af;
+      min-width: 58px;
+      padding-top: 1px;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+      flex-shrink: 0;
+    }
+
+    .profile-val {
+      font-size: 12px;
+      color: var(--text);
+      line-height: 1.45;
+    }
+    .profile-val em { color: #d1d5db; font-style: normal; }
+
+    /* ── Output fields ────────────────────────────────────────────────────── */
+    .output-field { margin-bottom: 11px; }
+    .output-field:last-child { margin-bottom: 0; }
+
+    .output-hdr {
+      font-size: 10px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.07em;
+      color: var(--muted);
+      margin-bottom: 5px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .output-text {
+      background: #f9fafb;
+      border: 1px solid var(--border);
+      border-radius: 7px;
+      padding: 9px 11px;
+      font-size: 12px;
+      line-height: 1.55;
+      color: var(--text);
+      white-space: pre-wrap;
+      word-break: break-word;
+    }
+
+    /* ── Status messages ──────────────────────────────────────────────────── */
+    .status-msg {
+      font-size: 11px;
+      padding: 6px 10px;
+      border-radius: 6px;
+      margin-bottom: 8px;
+      display: none;
+    }
+    .status-msg.visible { display: block; }
+    .status-msg.error   { background: var(--danger-bg); color: var(--danger); }
+    .status-msg.success { background: var(--success-bg); color: var(--success); }
+    .status-msg.info    { background: var(--blue-light); color: var(--blue); }
+
+    /* ── Empty state ──────────────────────────────────────────────────────── */
+    .empty-state {
+      text-align: center;
+      padding: 16px 8px;
+      color: var(--muted);
+      font-size: 12px;
+      line-height: 1.6;
+    }
+
+    /* ── Spinner ──────────────────────────────────────────────────────────── */
+    .spinner {
+      width: 14px; height: 14px;
+      border: 2px solid rgba(255,255,255,0.35);
+      border-top-color: var(--white);
+      border-radius: 50%;
+      animation: spin 0.65s linear infinite;
+      flex-shrink: 0;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    /* ── Resume upload ────────────────────────────────────────────────────── */
+    .btn-upload {
+      width: 100%;
+      padding: 8px 12px;
+      background: var(--white);
+      border: 1.5px dashed var(--border);
+      border-radius: 7px;
+      color: var(--muted);
+      font-size: 12px;
+      font-family: inherit;
+      cursor: pointer;
+      text-align: center;
+      transition: border-color 0.15s, color 0.15s;
+    }
+    .btn-upload:hover { border-color: var(--blue); color: var(--blue); }
+
+    .resume-chip {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 7px 10px;
+      background: var(--blue-light);
+      border: 1px solid var(--blue-pale);
+      border-radius: 7px;
+      font-size: 12px;
+      color: var(--blue);
+      font-weight: 500;
+      margin-bottom: 6px;
+    }
+    .resume-chip span { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+
+    /* ── Divider ──────────────────────────────────────────────────────────── */
+    .divider {
+      border: none;
+      border-top: 1px solid var(--border);
+      margin: 12px 0;
+    }
+
+    /* ── Generate screen extras ───────────────────────────────────────────── */
+    .generate-footer {
+      padding: 0 0 10px;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .regen-row {
+      display: flex;
+      gap: 8px;
+    }
+    .regen-row .btn-primary { flex: 1; }
+    .regen-row .btn-secondary { flex-shrink: 0; }
+
+    /* ── Screen 2 redesign ─────────────────────────────────────────────────── */
+    #screen-generate {
+      background: linear-gradient(160deg, #fce7f3 0%, #f3e8ff 100%);
+    }
+
+    .gen-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 14px 16px 10px;
+      flex-shrink: 0;
+    }
+
+    .gen-title {
+      font-size: 22px;
+      font-weight: 800;
+      color: #5b21b6;
+      letter-spacing: -0.02em;
+    }
+
+    .btn-grad-pill {
+      background: linear-gradient(90deg, #8b5cf6, #06b6d4);
+      color: #fff;
+      border: none;
+      border-radius: 20px;
+      padding: 8px 16px;
+      font-size: 12px;
+      font-weight: 700;
+      font-family: inherit;
+      cursor: pointer;
+      transition: opacity 0.15s;
+    }
+    .btn-grad-pill:hover { opacity: 0.88; }
+
+    .section-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 8px;
+    }
+
+    .section-lbl {
+      font-size: 11px;
+      font-weight: 700;
+      color: #7c3aed;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+    }
+
+    .section-actions {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .action-link {
+      background: none;
+      border: none;
+      font-size: 11px;
+      font-weight: 600;
+      font-family: inherit;
+      cursor: pointer;
+      padding: 0;
+      display: flex;
+      align-items: center;
+      gap: 3px;
+    }
+    .teal-link  { color: #06b6d4; }
+    .teal-link:hover  { color: #0891b2; }
+    .coral-link { color: #f43f5e; }
+    .coral-link:hover { color: #e11d48; }
+
+    .rec-card {
+      background: #fff;
+      border-radius: 14px;
+      padding: 14px;
+      margin-bottom: 10px;
+      box-shadow: 0 2px 8px rgba(124, 58, 237, 0.08);
+    }
+
+    .rec-field { margin-bottom: 10px; }
+    .rec-field:last-child { margin-bottom: 0; }
+
+    .rec-field-lbl {
+      font-size: 10px;
+      font-weight: 600;
+      color: #9ca3af;
+      text-transform: uppercase;
+      letter-spacing: 0.07em;
+      margin-bottom: 4px;
+    }
+
+    .rec-field-val {
+      border: 1px solid #e5e7eb;
+      border-radius: 8px;
+      padding: 7px 10px;
+      font-size: 12px;
+      color: #374151;
+      line-height: 1.45;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+    .rec-field-val.multiline {
+      white-space: pre-wrap;
+      overflow-y: auto;
+      max-height: 72px;
+      text-overflow: clip;
+    }
+    .rec-field-val em { color: #d1d5db; font-style: normal; }
+
+    /* ── Message Profile card icon + Edit button ───────────────────────────── */
+    .mp-label {
+      display: flex;
+      align-items: center;
+      gap: 5px;
+    }
+
+    .btn-edit-profiles {
+      background: linear-gradient(white, white) padding-box,
+                  linear-gradient(90deg, #8b5cf6, #06b6d4) border-box;
+      border: 1px solid transparent;
+      border-radius: 6px;
+      color: #7c3aed;
+      padding: 3px 9px;
+      font-size: 10px;
+      font-weight: 600;
+      font-family: inherit;
+      cursor: pointer;
+      text-transform: none;
+      letter-spacing: 0;
+      transition: background 0.15s;
+    }
+    .btn-edit-profiles:hover {
+      background: linear-gradient(#f5f3ff, #f5f3ff) padding-box,
+                  linear-gradient(90deg, #8b5cf6, #06b6d4) border-box;
+    }
+
+    /* Gradient overrides for buttons inside generate screen */
+    #screen-generate .btn-primary {
+      background: linear-gradient(90deg, #8b5cf6, #06b6d4);
+    }
+    #screen-generate .btn-primary:hover:not(:disabled) {
+      background: linear-gradient(90deg, #7c3aed, #0891b2);
+    }
+    #screen-generate .btn-primary:disabled {
+      background: linear-gradient(90deg, #c4b5fd, #67e8f9);
+      cursor: not-allowed;
+    }
+  </style>
+</head>
+<body>
+
+<!-- ═══════════════════════════════════════════════════════════════════════════
+     SCREEN 1 — Profile Setup
+═══════════════════════════════════════════════════════════════════════════ -->
+<div id="screen-setup" class="screen" style="display:none">
+
+  <div class="screen-header white">
+    <span class="header-title" style="font-size:14px">Sender Profiles</span>
+    <button class="btn-link" id="back-btn" style="display:none">← Generate</button>
+  </div>
+
+  <div class="screen-body">
+
+    <!-- Saved profiles list -->
+    <div class="card" id="profiles-list-card">
+      <div class="card-title">
+        Saved Profiles
+        <button class="btn-icon" id="new-profile-btn" title="Start a new profile">+ New</button>
+      </div>
+      <div id="profiles-list">
+        <div class="empty-state">No profiles yet — fill in the form below.</div>
+      </div>
+    </div>
+
+    <!-- Add / Edit form -->
+    <div class="card">
+      <div class="card-title" id="form-title">New Profile</div>
+
+      <div class="field">
+        <label class="field-label" for="f-profile-name">Profile Label</label>
+        <input type="text" id="f-profile-name" placeholder="e.g. PM Outreach, Startup Founders" />
+      </div>
+
+      <div class="field">
+        <label class="field-label" for="f-name">Your Name</label>
+        <input type="text" id="f-name" placeholder="e.g. Alex Johnson" />
+      </div>
+
+      <div class="field">
+        <label class="field-label" for="f-role">Your Role</label>
+        <input type="text" id="f-role" placeholder="e.g. Software Engineer at Acme" />
+      </div>
+
+      <div class="field">
+        <label class="field-label" for="f-years-exp">Years of Experience</label>
+        <input type="text" id="f-years-exp" placeholder="e.g. 5, 3+" />
+      </div>
+
+      <div class="field">
+        <label class="field-label" for="f-achievements">Key Achievements</label>
+        <textarea id="f-achievements" placeholder="e.g. Built payment module serving 50k users; open-source contributor to Stripe SDK"></textarea>
+      </div>
+
+      <div class="field">
+        <label class="field-label" for="f-intent">Intent</label>
+        <select id="f-intent">
+          <option value="job_inquiry">Job Inquiry</option>
+          <option value="referral">Referral</option>
+          <option value="chat">Just Chat</option>
+        </select>
+      </div>
+
+      <div class="field">
+        <label class="field-label">
+          Resume
+          <span style="color:#f43f5e;margin-left:2px">*</span>
+        </label>
+        <!-- shown once a file is chosen or a saved resume exists -->
+        <div id="resume-display" class="resume-chip" style="display:none">
+          <span id="resume-filename-display"></span>
+          <button type="button" class="btn-icon danger" id="resume-remove-btn" title="Remove resume">✕</button>
+        </div>
+        <input type="file" id="f-resume" accept=".pdf" style="display:none" />
+        <button type="button" class="btn-upload" id="resume-pick-btn">↑ Upload Resume PDF</button>
+      </div>
+
+      <hr class="divider" />
+
+      <div id="setup-status" class="status-msg"></div>
+
+      <button class="btn-primary" id="save-profile-btn">Save Profile</button>
+
+      <div style="text-align:center; margin-top:8px">
+        <button class="btn-link" id="cancel-edit-btn" style="display:none">Cancel Edit</button>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════════════════════════
+     SCREEN 2 — Generate
+═══════════════════════════════════════════════════════════════════════════ -->
+<div id="screen-generate" class="screen" style="display:none">
+
+  <div class="screen-body" style="padding-top:14px">
+
+    <!-- Find Email -->
+    <div class="card">
+      <div class="card-title">
+        <span class="mp-label">
+          <svg width="13" height="10" viewBox="0 0 13 10" xmlns="http://www.w3.org/2000/svg">
+            <defs>
+              <linearGradient id="mailGrad" x1="0" y1="0" x2="13" y2="10" gradientUnits="userSpaceOnUse">
+                <stop offset="0%" stop-color="#8b5cf6"/>
+                <stop offset="100%" stop-color="#06b6d4"/>
+              </linearGradient>
+            </defs>
+            <path d="M0 1a1 1 0 011-1h11a1 1 0 011 1v8a1 1 0 01-1 1H1a1 1 0 01-1-1V1zm1 1.4V9h11V2.4L6.5 6.2 1 2.4zm.6-1.4L6.5 4.8 11.4 1H1.6z" fill="url(#mailGrad)"/>
+          </svg>
+          Find Email Address
+        </span>
+        <button class="action-link teal-link" id="find-email-btn">✉ Find Email Address</button>
+      </div>
+      <div id="email-results" style="display:none;margin-top:6px">
+        <div style="margin-bottom:8px">
+          <div class="output-hdr" style="margin-bottom:4px">Inferred Domain</div>
+          <input type="text" id="email-domain-input" placeholder="e.g. stripe.com" />
+        </div>
+        <div id="email-guesses-list"></div>
+      </div>
+    </div>
+
+    <!-- Message profile picker -->
+    <div class="card">
+      <div class="card-title">
+        <span class="mp-label">
+          <svg width="11" height="11" viewBox="0 0 12 12" xmlns="http://www.w3.org/2000/svg">
+            <defs>
+              <linearGradient id="iconGrad" x1="0" y1="0" x2="12" y2="12" gradientUnits="userSpaceOnUse">
+                <stop offset="0%" stop-color="#8b5cf6"/>
+                <stop offset="100%" stop-color="#06b6d4"/>
+              </linearGradient>
+            </defs>
+            <path d="M6 0L7.5 4.5L12 6L7.5 7.5L6 12L4.5 7.5L0 6L4.5 4.5L6 0Z" fill="url(#iconGrad)"/>
+          </svg>
+          Message Profile
+        </span>
+        <button class="btn-edit-profiles" id="edit-profiles-btn">Edit Profiles</button>
+      </div>
+      <select id="profile-selector"></select>
+    </div>
+
+    <!-- Status -->
+    <div id="gen-status" class="status-msg"></div>
+
+    <!-- Generate -->
+    <div class="generate-footer">
+      <button class="btn-primary" id="generate-btn">Generate Message</button>
+    </div>
+
+    <!-- Output (hidden until first generation) -->
+    <div class="card" id="output-card" style="display:none">
+      <div class="card-title">Generated Outreach</div>
+
+      <div class="output-field">
+        <div class="output-hdr">
+          Subject
+          <button class="copy-btn" data-target="out-subject">Copy</button>
+        </div>
+        <div class="output-text" id="out-subject"></div>
+      </div>
+
+      <div class="output-field">
+        <div class="output-hdr">
+          Message
+          <button class="copy-btn" data-target="out-message">Copy</button>
+        </div>
+        <div class="output-text" id="out-message"></div>
+      </div>
+
+      <hr class="divider" />
+
+      <div class="regen-row">
+        <button class="btn-primary" id="regenerate-btn">↺ Regenerate</button>
+      </div>
+    </div>
+
+    <!-- Connect Message card -->
+    <div class="card" id="connect-card" style="margin-top:10px">
+      <div class="card-title">
+        Connect Message
+        <span style="font-weight:400;font-size:9px;text-transform:none;letter-spacing:0;color:var(--muted)">280 chars</span>
+      </div>
+
+      <button class="btn-primary" id="connect-btn">Draft Connection Message</button>
+
+      <div id="connect-status" class="status-msg" style="margin-top:8px"></div>
+
+      <div id="connect-output" style="display:none;margin-top:10px">
+        <div class="output-hdr">
+          Message
+          <div style="display:flex;align-items:center;gap:8px">
+            <span id="connect-char-count" style="font-weight:400;font-size:10px"></span>
+            <button class="copy-btn" id="connect-copy-btn">Copy</button>
+          </div>
+        </div>
+        <div class="output-text" id="out-connect"></div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<script src="sidepanel.js"></script>
+</body>
+</html>
